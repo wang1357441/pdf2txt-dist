@@ -18,6 +18,11 @@
       "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/pdf2txt_source.tar.gz",
       "sha256": "f68fe46b11865e5473b51ef26b211bd1fd99eb168cb5461e1aebe5304de0514a",
       "size": 40237
+    },
+    "binary": {
+      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT_linux_aarch64",
+      "sha256": "5d981dc6db0802d92ab287c09cb3ea02d74c1a43dd39a2970fdfab551008d8ba",
+      "size": 110958632
     }
   }
 }
