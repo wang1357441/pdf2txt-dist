@@ -71,6 +71,10 @@ pyinstaller --noconfirm --clean \
     --add-data "app.ico:." \
     pdf2txt.py
 
+# 保证产物对所有用户可读可执行（CI 容器里是 root 跑的，宿主上传步骤是非 root）
+chmod -R a+rX dist venv_uos 2>/dev/null || true
+chmod 755 dist/PDFtoTXT 2>/dev/null || true
+
 echo ""
 echo "✅ 打包完成！单个可执行文件在： $(pwd)/dist/PDFtoTXT"
 echo "   这就是「统信 UOS 版单个文件」——双击它，或在终端里跑： ./dist/PDFtoTXT"
