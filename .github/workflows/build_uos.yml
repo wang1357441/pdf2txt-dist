@@ -25,10 +25,12 @@ jobs:
       - name: 让 x86  runner 能跑 arm64 容器（QEMU 注册）
         uses: docker/setup-qemu-action@v3
 
+      # 总是从 main 取代码构建：main 上始终含完整源码（发布时 manifest 先提交到 main，
+      # 所以 main 的代码就等于当次发布的代码）。如果改成按 tag 取，老 tag 可能早于源码入库而缺文件。
       - name: 拉代码
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          ref: main
 
       - name: 在 arm64 容器里打包出单个文件
         run: |
