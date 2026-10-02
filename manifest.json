@@ -1,10 +1,10 @@
 {
-  "version": "1.0.3",
-  "notes": "v1.0.3：继续巩固更新流程；新增“陈旧副本”提醒（若误打开被改名的旧 PDFtoTXT_old.exe 会弹窗提示去开正确的那份），避免用到旧版导致更新功能异常。",
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.3",
+  "version": "1.0.4",
+  "notes": "v1.0.4：仅供验证更新流程（下载→校验→自更新）的稳定性小版本。",
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.4",
   "windows": {
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.3/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.3/PDFtoTXT.exe",
-    "sha256": "c409052a5fdf915ba997f90e5690a919b2b573343c2c82bb38b63d8929b97507"
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.4/PDFtoTXT.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.4/PDFtoTXT.exe",
+    "sha256": "63a99a42e6c4eb113125318c90173ff1faff42537ccf02a92634f310b9cc1b85"
   }
 }
