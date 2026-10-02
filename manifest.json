@@ -20,9 +20,9 @@
       "size": 44766
     },
     "binary": {
-      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT_linux_aarch64",
-      "sha256": "5d981dc6db0802d92ab287c09cb3ea02d74c1a43dd39a2970fdfab551008d8ba",
-      "size": 110958632
+      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT_linux_aarch64",
+      "sha256": "81e5670ca171e753cbd422da899bc6bd20a084b70b7551c35b93334480f2499f",
+      "size": 110960672
     }
   }
 }
