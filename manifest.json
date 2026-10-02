@@ -1,23 +1,23 @@
 {
-  "version": "1.0.7",
-  "notes": "统信 UOS / Linux 手动点击自动更新（源码包自解压替换 + 预编译二进制替换），下载源择优与 Windows 一致（镜像站优先、sha256 校验），并修正若干细节。",
-  "size": 108751593,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.7",
+  "version": "1.0.9",
+  "notes": "新增在线激活（Cloudflare 校验，一码一次）；激活状态跨更新持久化；断网激活明确提示需联网；反馈直达邮箱。",
+  "size": 108758695,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.9",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT.exe",
-    "sha256": "adb74417857d3c701ec825f09acb398f0afe5c5573dd37a708a0c2f7f0a2a6b5",
-    "size": 108751593
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT.exe",
+    "sha256": "18f68e1e87704bdf23f0a4baee3b5d4eff4b0e72b6753bab1cc6619b443ff97a",
+    "size": 108758695
   },
   "linux": {
     "source": {
-      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/pdf2txt_source.tar.gz",
-      "sha256": "f68fe46b11865e5473b51ef26b211bd1fd99eb168cb5461e1aebe5304de0514a",
-      "size": 40237
+      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/pdf2txt_source.tar.gz",
+      "sha256": "142f9d9b392be6fb9fec704de49065b1bc065a8fc4cd848061cec0f39c1d676e",
+      "size": 44766
     },
     "binary": {
       "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT_linux_aarch64",
