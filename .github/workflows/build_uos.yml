@@ -1,0 +1,44 @@
+name: Build UOS (aarch64) single file
+
+# 每次发版（或在 Actions 页面手动点一下）自动在云端用 QEMU 模拟 aarch64，
+# 打出「统信 UOS / 鲲鹏」能直接运行的单个文件 PDFtoTXT_linux_aarch64，
+# 上传到 Release 并写进更新清单，让 UOS 版也能「手动点击自动更新」。
+# 这样作者/用户都不用在自己的 UOS 上手动 build 了。
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "要附加上 UOS 单文件的 Release 版本号（例如 v1.0.7）"
+        required: true
+        default: "v1.0.7"
+
+permissions:
+  contents: write
+
+jobs:
+  build-uos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 让 x86  runner 能跑 arm64 容器（QEMU 注册）
+        uses: docker/setup-qemu-action@v3
+
+      - name: 拉代码
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: 在 arm64 容器里打包出单个文件
+        run: |
+          docker run --rm --platform=linux/arm64 \
+            -v "$PWD":/src -w /src arm64v8/ubuntu:22.04 \
+            /bin/bash build_uos.sh
+
+      - name: 上传到 Release 并补清单
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: python3 .github/upload_uos_binary.py

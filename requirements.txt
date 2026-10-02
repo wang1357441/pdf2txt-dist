@@ -1,0 +1,13 @@
+# PDF 转 TXT 依赖。
+# 在 Windows 上我们验证过这套组合：
+#   pypdfium2==4.8.0 / opencv==4.10.0.84 / numpy==1.26.4 / onnxruntime==1.22.0
+# 但你的统信 UOS 是 aarch64（ARM）架构，pip 会自动挑对应架构的「轮子」，
+# 所以这里用「下限」而不是死锁版本——既保证功能一致，又能让 ARM 装到正确的包。
+# （你这台机器确认是 aarch64/ARM，PyInstaller 6.x 官方支持 aarch64，可放心用方法二打包。）
+pypdfium2>=4.8.0
+rapidocr_onnxruntime==1.3.4          # 纯 Python，跨平台无差别
+opencv-python-headless>=4.10.0.84
+Pillow>=10.4.0
+numpy>=1.26.4                     # 不锁上限：让 aarch64 在 numpy 1.x / 2.x 里都能选到兼容轮子（已确认 numpy 2.x 在 ARM 上有轮子且本项目兼容）
+onnxruntime>=1.16                  # 不限上限：让 aarch64 自动选合适的轮子
+PyInstaller>=6.0                   # 6.x 起官方支持 aarch64（含鲲鹏）打包
