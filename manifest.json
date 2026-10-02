@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "notes": "首个公开版本：PDF 转 TXT（含图片 OCR），支持检查更新，下载优先走镜像站、官方源兜底。",
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.0",
+  "windows": {
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.0/PDFtoTXT.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.0/PDFtoTXT.exe",
+    "sha256": "6fdabe23ca7af3ca477017b57cfa853f0d05a08df2ee4e5e37badc236d43d32f"
+  }
+}
