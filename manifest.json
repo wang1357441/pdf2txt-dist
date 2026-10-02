@@ -1,23 +1,23 @@
 {
-  "version": "1.0.9",
-  "notes": "新增在线激活（Cloudflare 校验，一码一次）；激活状态跨更新持久化；断网激活明确提示需联网；反馈直达邮箱。",
-  "size": 108758695,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.9",
+  "version": "1.0.10",
+  "notes": "更新下载改用并行分块（多连接同时下载不同区段，叠加带宽），下载更快（目标≥1MB/s）并实时显示速度；保留断点续传与 sha256 校验。",
+  "size": 108763574,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.10",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.10/PDFtoTXT.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.10/PDFtoTXT.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT.exe",
-    "sha256": "18f68e1e87704bdf23f0a4baee3b5d4eff4b0e72b6753bab1cc6619b443ff97a",
-    "size": 108758695
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.10/PDFtoTXT.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.10/PDFtoTXT.exe",
+    "sha256": "46fa7efeef33dbd27dca87067bd16714f3ff1347a6a2202d0788bda604aa6f83",
+    "size": 108763574
   },
   "linux": {
     "source": {
-      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/pdf2txt_source.tar.gz",
-      "sha256": "142f9d9b392be6fb9fec704de49065b1bc065a8fc4cd848061cec0f39c1d676e",
-      "size": 44766
+      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.10/pdf2txt_source.tar.gz",
+      "sha256": "6775469deccf9c7ebc0f55f75ef5b272ca74089ec26b8b967fe5d0b4d77fcdbd",
+      "size": 47282
     },
     "binary": {
       "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.9/PDFtoTXT_linux_aarch64",
