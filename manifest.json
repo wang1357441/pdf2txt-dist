@@ -1,16 +1,23 @@
 {
-  "version": "1.0.6",
-  "notes": "安全/稳健加固：反馈邮件在 mailto 过长时自动降级为 .eml 草稿（保证一定发得出）；更新助手脚本改用 UTF-8 BOM + chcp 65001，修掉中文路径下自更新可能失败；错误日志限定体积；清理一处冗余代码。",
-  "size": 108745666,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.6",
+  "version": "1.0.7",
+  "notes": "统信 UOS / Linux 手动点击自动更新（源码包自解压替换 + 预编译二进制替换），下载源择优与 Windows 一致（镜像站优先、sha256 校验），并修正若干细节。",
+  "size": 108751593,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.7",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.6/PDFtoTXT.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.6/PDFtoTXT.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.6/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.6/PDFtoTXT.exe",
-    "sha256": "12488c9b0b570c02b439e69d82034c06e501e336fea8c97ce563297a1e7fb1e9",
-    "size": 108745666
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/PDFtoTXT.exe",
+    "sha256": "adb74417857d3c701ec825f09acb398f0afe5c5573dd37a708a0c2f7f0a2a6b5",
+    "size": 108751593
+  },
+  "linux": {
+    "source": {
+      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.7/pdf2txt_source.tar.gz",
+      "sha256": "f68fe46b11865e5473b51ef26b211bd1fd99eb168cb5461e1aebe5304de0514a",
+      "size": 40237
+    }
   }
 }
