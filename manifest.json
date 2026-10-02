@@ -1,10 +1,10 @@
 {
-  "version": "1.0.2",
-  "notes": "v1.0.2：修复“检查更新”下载时反复在镜像站/官方源间跳动、进度反复清空（改临时文件+原子替换+单源重试+显示当前源）；新增“安装并更新”一键自更新，下载后自动关闭并替换重启，不再因程序占用卡死。",
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.2",
+  "version": "1.0.3",
+  "notes": "v1.0.3：继续巩固更新流程；新增“陈旧副本”提醒（若误打开被改名的旧 PDFtoTXT_old.exe 会弹窗提示去开正确的那份），避免用到旧版导致更新功能异常。",
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.3",
   "windows": {
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.2/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.2/PDFtoTXT.exe",
-    "sha256": "75bafa752ef018cc976674411a311cfc329af5ee0a86a709075ae0c8f66ec28d"
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.3/PDFtoTXT.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.3/PDFtoTXT.exe",
+    "sha256": "c409052a5fdf915ba997f90e5690a919b2b573343c2c82bb38b63d8929b97507"
   }
 }
