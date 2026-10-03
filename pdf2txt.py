@@ -20,6 +20,7 @@ import os
 import re
 import sys
 import math
+import time
 import threading
 import queue
 import traceback
@@ -52,7 +53,7 @@ _OCR_FAILED = False
 # 版本 & 更新（获取更新能力的核心配置，全在这里）
 # ==========================================================================
 # 当前版本号（以后发新版，只改这一行就行）。程序拿它和线上清单比对。
-APP_VERSION = "1.0.7"
+APP_VERSION = "1.0.11"
 
 # 更新清单（manifest）地址：一个公开、不需要密码就能访问的 JSON 文件。
 # 推荐放在 GitHub 仓库里（见 UPDATE.md 说明）。下面这行是示例占位，
@@ -64,6 +65,16 @@ UPDATE_MANIFEST_MIRROR = "https://cdn.jsdelivr.net/gh/wang1357441/pdf2txt-dist@m
 
 # 是否一打开程序就自动检查更新（默认关，免得每次启动都联网；想开改成 True）。
 AUTO_CHECK_ON_START = False
+
+# ==========================================================================
+# 商用激活（联网校验：每个激活码仅限激活一次；吊销可经服务端作废）
+# ==========================================================================
+# 激活服务器（Cloudflare Worker，负责校验激活码；密钥在服务端，程序里只有这个网址）。
+# 激活后端已迁到 GitHub 上的 licenses.json（见下方 LICENSE_REPO / LICENSE_SOURCES），
+# 不再依赖国内连不上的 workers.dev。文件里只存激活码的 SHA-256 哈希，不泄露真码。
+# 激活码字符表（去掉易混的 0/O/1/I/L 等）。
+LICENSE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+LICENSE_CODE_LEN = 16   # 4 组 x 4 位
 
 
 # ==========================================================================
@@ -155,23 +166,78 @@ def fetch_manifest(url, timeout=10):
     return json.loads(raw)
 
 
-def _download_file(url, dest, timeout=60, progress=None):
+def _download_file(url, dest, timeout=60, progress=None, expect_size=0):
     """下载文件到 dest，返回它的 sha256（十六进制小写）。progress(got, total) 可选。
 
-    关键点：先下到 dest + ".part" 临时文件，全部收完、且校验通过后才原子替换成 dest。
-    这样下载到一半失败不会把最终文件清空（之前那样会让人觉得“反复清空、跳来跳去”）。
+    断点续传（重点）：
+    - 先下到 dest + ".part" 临时文件，全部收完、校验通过后才原子替换成 dest。
+    - 上次下到一半断了，这次会从上次的位置接着下（发 HTTP Range 请求），而不是从头重来。
+      专门对付网络不稳、大文件（100+MB）容易断的情况。
+    - 用一个 .part.meta 小文件记住「这个 .part 是哪个 url 下的」，避免不同版本 / 不同源
+      的半截文件串味导致损坏（例如 v1.0.8 的半截被误当成 v1.0.9 的续传）。
+    - 服务器若不支持 Range（返回 200 整包），自动退回「从头重写」，绝不损坏文件。
+    - 中途断了：保留 .part + .meta，下次同一个 url 一来就接着下。
     """
     import time
     tmp = dest + ".part"
-    req = urllib.request.Request(url, headers={"User-Agent": "PDFtoTXT-Updater/1.0"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        total = int(resp.headers.get("Content-Length", "0") or "0")
-        hasher = hashlib.sha256()
-        got = 0
-        chunk = 1 << 16
-        last_t = 0.0
+    meta = dest + ".part.meta"
+    resume_from = 0
+    # 看本地有没有「同一个 url」的半截文件可以续
+    if os.path.exists(tmp) and os.path.getsize(tmp) > 0:
+        same_url = False
         try:
-            with open(tmp, "wb") as f:
+            with open(meta, "r", encoding="utf-8") as fh:
+                same_url = fh.read().strip() == url
+        except Exception:
+            same_url = False
+        cur = os.path.getsize(tmp)
+        if same_url and (not expect_size or cur < expect_size):
+            resume_from = cur
+        else:
+            # 不是同一个 url，或已经下满却没替换成功 → 当作废，重头来
+            try:
+                os.remove(tmp)
+            except Exception:
+                pass
+            try:
+                os.remove(meta)
+            except Exception:
+                pass
+            resume_from = 0
+    # 记下 url，方便下次续传时判断是不是同一个文件
+    try:
+        with open(meta, "w", encoding="utf-8") as fh:
+            fh.write(url)
+    except Exception:
+        pass
+    headers = {"User-Agent": "PDFtoTXT-Updater/1.0"}
+    if resume_from > 0:
+        headers["Range"] = "bytes=%d-" % resume_from
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        code = resp.getcode()
+        if code == 206:                      # 服务器认 Range：接着下
+            remaining = int(resp.headers.get("Content-Length", "0") or "0")
+            total = resume_from + remaining
+            mode = "ab"
+        else:                                # 200 整包：从头重写（绝不损坏）
+            total = int(resp.headers.get("Content-Length", "0") or "0")
+            mode = "wb"
+            resume_from = 0
+        hasher = hashlib.sha256()
+        # 续传时先把已下的部分算进哈希，保证整包顺序一致（校验才对得上）
+        if resume_from > 0:
+            with open(tmp, "rb") as pf:
+                while True:
+                    buf = pf.read(1 << 16)
+                    if not buf:
+                        break
+                    hasher.update(buf)
+        got = resume_from
+        chunk = 1 << 16
+        last_t = time.time()
+        try:
+            with open(tmp, mode) as f:
                 while True:
                     buf = resp.read(chunk)
                     if not buf:
@@ -186,11 +252,226 @@ def _download_file(url, dest, timeout=60, progress=None):
                             progress(got, total)
             os.replace(tmp, dest)   # 全下完才替换目标；中途失败只删临时文件
         except Exception:
+            # 中途失败：保留 .part + meta，下次同一个 url 接着下（不删！）
+            raise
+    # 成功了：清掉 meta（.part 已被 replace 掉）
+    try:
+        os.remove(meta)
+    except Exception:
+        pass
+    return hasher.hexdigest()
+
+
+# ==========================================================================
+# 并行分块下载（叠带宽，目标 ≥1MB/s）
+# --------------------------------------------------------------------------
+# 思路：大文件（100+MB）一个连接经常被限速到几百 KB/s。把它切成 N 段，每段
+# 各自开一个连接同时下不同区段，把零散带宽「叠」起来，整体速度就能上 1MB/s。
+# 下完按顺序拼成一个整文件，再整体算 sha256 防篡改（和单连接一致）。
+# 断点续传保留在「块」粒度：某块下坏只重下那一块，已下好的不动。
+# ==========================================================================
+CHUNK_TARGET = 4 * 1024 * 1024     # 每块目标大小 4MB（块越多，能叠的带宽越多）
+MIN_CHUNKS = 6
+MAX_CHUNKS = 16
+
+
+def _clamp(v, lo, hi):
+    return max(lo, min(hi, v))
+
+
+def _probe_size(url, expect_size=0):
+    """探一个下载地址：返回 (total 字节, 是否支持 Range)。
+
+    发一个 Range: bytes=0-0 的小请求，能从 Content-Range 里拿到文件总大小；
+    同时验证服务器认不认 Range（认的话才能分块并行下）。
+    拿不到 / 返回整包（200）/ 大小明显对不上（多半是镜像回了个错误页）就当
+    「不支持 Range」，交给单连接 _download_file 兜底。"""
+    try:
+        req = urllib.request.Request(
+            url, headers={"User-Agent": "PDFtoTXT-Updater/1.0",
+                          "Range": "bytes=0-0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            if resp.getcode() != 206:
+                return 0, False
+            cr = resp.headers.get("Content-Range") or ""
+            if "/" not in cr:
+                return 0, False
+            total = int(cr.rsplit("/", 1)[1])
+            if expect_size and total and abs(total - expect_size) > 1024:
+                return 0, False
+            return total, True
+    except Exception:
+        return 0, False
+
+
+def _download_parallel(url, dest, timeout=60, progress=None, expect_size=0):
+    """并行分块下载：多连接同时拉不同区段，把零散带宽叠起来，整体更快。
+
+    - 自动探测大小与 Range 支持；不支持就退回 _download_file（单连接，带断点续传）。
+    - 按块落盘到 dest.part.N；某块下坏只重下那一块（断点续传在「块」粒度）。
+    - 全部块收齐后按顺序拼成整文件，整体算 sha256 防篡改。
+    - progress(got, total, speed_bps) 实时上报进度与速度；speed_bps=0 表示「未知」。
+    """
+    import concurrent.futures
+
+    total, range_ok = _probe_size(url, expect_size)
+    if not (range_ok and total):
+        # 兜底：单连接 + 断点续传（原来的实现）
+        def _fb(g, t):
+            if progress:
+                progress(g, t, 0)
+        return _download_file(url, dest, timeout=timeout, progress=_fb, expect_size=expect_size)
+
+    n = _clamp(total // CHUNK_TARGET, MIN_CHUNKS, MAX_CHUNKS)
+    chunk_len = total // n
+    chunks = []                       # (start, end) 闭区间
+    for i in range(n):
+        s = i * chunk_len
+        e = total - 1 if i == n - 1 else s + chunk_len - 1
+        chunks.append((s, e))
+
+    meta = dest + ".part.meta"
+    part_paths = [dest + ".part.%d" % i for i in range(n)]
+
+    # 版本/源校验：meta 记录 url+total，不一致就说明是别的版本或别的源的半截，全清重来
+    mismatch = False
+    if os.path.exists(meta):
+        try:
+            with open(meta, "r", encoding="utf-8") as fh:
+                rec = fh.read().strip().split("\n")
+            if len(rec) != 2 or rec[0] != url or int(rec[1]) != total:
+                mismatch = True
+        except Exception:
+            mismatch = True
+    if mismatch:
+        for p in part_paths + [meta]:
             try:
-                os.remove(tmp)
+                if os.path.exists(p):
+                    os.remove(p)
             except Exception:
                 pass
-            raise
+
+    # 记 meta（url + total），便于下次判断是否同一下载
+    try:
+        with open(meta, "w", encoding="utf-8") as fh:
+            fh.write(url + "\n" + str(total))
+    except Exception:
+        pass
+
+    # 已下完的块直接算进总量；没下完的由工作线程边下边累加
+    lock = threading.Lock()
+    got = 0
+    for i in range(n):
+        p = part_paths[i]
+        s, e = chunks[i]
+        want = e - s + 1
+        if os.path.exists(p) and os.path.getsize(p) == want:
+            got += want
+
+    def _worker(i):
+        nonlocal got
+        s, e = chunks[i]
+        want = e - s + 1
+        p = part_paths[i]
+        # 已经下好这一块：直接跳过
+        if os.path.exists(p) and os.path.getsize(p) == want:
+            return True
+        # 半截或不完整的：整块重下（简单可靠，wb 从头写这一块）
+        try:
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "PDFtoTXT-Updater/1.0",
+                              "Range": "bytes=%d-%d" % (s, e)})
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                if resp.getcode() not in (200, 206):
+                    return False
+                with open(p, "wb") as f:
+                    while True:
+                        buf = resp.read(1 << 16)
+                        if not buf:
+                            break
+                        f.write(buf)
+                        with lock:
+                            got += len(buf)
+            # 落盘后核对本块大小，防止镜像截断
+            if os.path.getsize(p) != want:
+                try:
+                    os.remove(p)
+                except Exception:
+                    pass
+                return False
+            return True
+        except Exception:
+            # 失败保留半截文件，下次同一块重下（支持断点续传）
+            return False
+
+    # 跑并行下载，同时按 0.2s 节流上报进度 + 速度
+    last_t = time.time()
+    last_got = got
+    ema = 0.0
+    if progress:
+        progress(got, total, 0)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=n) as ex:
+        futs = {ex.submit(_worker, i): i for i in range(n)}
+        pending = set(futs)
+        while pending:
+            _done, pending = concurrent.futures.wait(pending, timeout=0.2)
+            now = time.time()
+            g = got
+            dt = now - last_t
+            if dt >= 0.2 or not pending:
+                inst = (g - last_got) / dt if dt > 0 else 0.0
+                ema = inst if ema == 0 else (0.7 * inst + 0.3 * ema)
+                if progress:
+                    progress(min(g, total), total, ema if ema > 0 else 0)
+                last_t = now
+                last_got = g
+        bad = [i for f, i in futs.items() if not f.result()]
+    if bad:
+        # 有块没下成：保留已下的块，抛异常让上层重试（或换源）
+        raise RuntimeError("分块下载有 %d 块失败，已保留进度将自动重试" % len(bad))
+
+    # 全部块收齐：按顺序拼成一个整文件（先写 .merged 临时文件，再原子替换），整体算 sha256
+    merged = dest + ".merged"
+    hasher = hashlib.sha256()
+    merge_ok = False
+    try:
+        with open(merged, "wb") as out:
+            for i in range(n):
+                with open(part_paths[i], "rb") as cf:
+                    while True:
+                        buf = cf.read(1 << 16)
+                        if not buf:
+                            break
+                        out.write(buf)
+                        hasher.update(buf)
+        merge_ok = True
+    finally:
+        if merge_ok:
+            try:
+                if os.path.exists(dest):
+                    os.remove(dest)
+            except Exception:
+                pass
+            os.replace(merged, dest)
+            # 清分块 + meta
+            for p in part_paths:
+                try:
+                    if os.path.exists(p):
+                        os.remove(p)
+                except Exception:
+                    pass
+            try:
+                os.remove(meta)
+            except Exception:
+                pass
+        else:
+            # 失败：留着分块和 meta 给重试；删掉可能半截的 merged
+            try:
+                if os.path.exists(merged):
+                    os.remove(merged)
+            except Exception:
+                pass
+            raise RuntimeError("分块合并失败，已保留各块进度将自动重试")
     return hasher.hexdigest()
 
 
@@ -250,6 +531,22 @@ def _race_fetch_json(urls, timeout=6.0):
             raise next(iter(failures.values()))
         raise TimeoutError("更新清单竞速超时（已试 %d 条）" % len(urls))
     return result["data"]
+
+
+def _fetch_manifest_race(retries=2):
+    """竞速拉清单；全部源失败就整体重试几次（应对临时网络抖）。
+
+    仍失败抛带人话的异常，直接交给更新弹窗显示，不让用户看天书。
+    """
+    last = None
+    for attempt in range(retries + 1):
+        try:
+            return _race_fetch_json(_manifest_candidates())
+        except Exception as e:
+            last = e
+            if attempt < retries:
+                time.sleep(1.0)
+    raise RuntimeError(_friendly_net_error(last))
 
 
 # ==========================================================================
@@ -794,7 +1091,7 @@ class UpdateDialog(tk.Toplevel):
         self.lbl_status.configure(
             text="连接 %s 失败，正在重试…" % (self._dl_source or "源"), fg=FG_WARN)
 
-    def set_downloading(self, got, total, source=None):
+    def set_downloading(self, got, total, source=None, speed_bps=None):
         if source:
             self._dl_source = source
         self._set_buttons(primary=None, secondary=("关闭", self.destroy))
@@ -806,8 +1103,11 @@ class UpdateDialog(tk.Toplevel):
             self.pbar.set_fraction(got / total)
             self.pbar.pack(fill="x", padx=12, pady=(4, 2))
             pct = got * 100 // total
+            speed_txt = ""
+            if speed_bps and speed_bps > 0:
+                speed_txt = "  %s/s" % _human_bytes(speed_bps)
             self.lbl_progress.configure(
-                text="%d%%  （%s / %s）" % (pct, _human_bytes(got), _human_bytes(total)))
+                text="%d%%  （%s / %s）%s" % (pct, _human_bytes(got), _human_bytes(total), speed_txt))
         else:
             # 不知道总量：继续跑马灯
             self.pbar.stop()
@@ -1125,6 +1425,307 @@ def convert_file(pdf: str, out: str, mode: str, log) -> int:
 # ==========================================================================
 # 主程序（GUI）
 # ==========================================================================
+# ==========================================================================
+# 商用激活逻辑（联网校验：每个激活码仅限激活一台设备，用过即作废；可服务端吊销）
+# ==========================================================================
+def normalize_license_code(c):
+    """只保留字母数字并转大写，去掉空格 / 连字符等。"""
+    return re.sub(r"[^A-Za-z0-9]", "", (c or "").upper())
+
+
+def validate_license_format(c):
+    """校验格式：全是 LICENSE_ALPHABET 里的字符，且长度对。"""
+    c = normalize_license_code(c)
+    if len(c) != LICENSE_CODE_LEN:
+        return False
+    for ch in c:
+        if ch not in LICENSE_ALPHABET:
+            return False
+    return True
+
+
+def _friendly_net_error(e):
+    """把 urllib / socket 异常翻成人话，别给用户看 WinError 10060 这种天书。"""
+    if e is None:
+        return "未知网络错误"
+    s = str(e)
+    low = s.lower()
+    if "10060" in s or "timed out" in low or "timeout" in low:
+        return ("连接超时：连不上服务器。\n"
+                "可能是你的网络暂时不通，或服务器在海外被墙。\n"
+                "请检查网络后重试，或稍后再试。")
+    if "10061" in s or "connection refused" in low:
+        return "服务器拒绝连接（服务可能暂时下线），请稍后重试。"
+    if "getaddrinfo" in low or "name or service not known" in low \
+            or "nodename nor servname" in low:
+        return ("连不上这个网址（域名解析失败）。\n"
+                "可能是网络/DNS 问题，或该域名对你当前网络不可达。")
+    if "10013" in s or "permission" in low:
+        return "网络被系统/防火墙拦了，请检查防火墙或换个网络。"
+    if "403" in s or "401" in s:
+        return "服务器拒绝了请求（可能密钥/权限不对）。"
+    if "404" in s:
+        return "找不到对应资源（404），可能地址已变，请检查更新源。"
+    if "ssl" in low or "certificate" in low:
+        return "SSL/证书错误，可能无法安全连接该服务器。"
+    if "urlopen error" in low:
+        return "网络请求失败：" + s.replace("urlopen error: ", "")
+    return "网络出错了：" + s
+
+
+# --------------------------------------------------------------------------
+# 激活后端：GitHub 上公开、但只存「激活码哈希」的 licenses.json
+# （raw + jsDelivr 双源，和“检查更新”同一条能连的通道；workers.dev 在国内连不上）
+# 只存哈希 → 任何人能看到这份文件也推不出真码（SHA-256 反推不了）。
+# --------------------------------------------------------------------------
+LICENSE_REPO = "wang1357441/pdf2txt-dist"
+LICENSE_PATH = "licenses.json"
+LICENSE_SOURCES = [
+    "https://raw.githubusercontent.com/%s/main/%s" % (LICENSE_REPO, LICENSE_PATH),
+    "https://cdn.jsdelivr.net/gh/%s@main/%s" % (LICENSE_REPO, LICENSE_PATH),
+]
+
+
+def _license_hash(code):
+    """激活码归一化后取 SHA-256，用于和 licenses.json 里的哈希比对（不泄露真码）。"""
+    return hashlib.sha256(normalize_license_code(code).encode("utf-8")).hexdigest()
+
+
+def _license_fetch(retries=2):
+    """竞速拉 licenses.json（多源 + 失败重试），最终抛带人话的异常。"""
+    last = None
+    for attempt in range(retries + 1):
+        try:
+            return _race_fetch_json(LICENSE_SOURCES)
+        except Exception as e:
+            last = e
+            if attempt < retries:
+                time.sleep(1.0)
+    raise RuntimeError(_friendly_net_error(last))
+
+
+def _check_code_status(code):
+    """返回 'ok' / 'revoked' / 'invalid'。联网失败会抛异常，交给上层决定离线信任。"""
+    data = _license_fetch()
+    hh = _license_hash(code)
+    revoked = set(data.get("revoked", []))
+    valid = set(data.get("valid", []))
+    if hh in revoked:
+        return "revoked"
+    if hh in valid:
+        return "ok"
+    return "invalid"
+
+
+def activate_license_online(code):
+    # 公开只读后端没有“服务端写入”，激活 = 校验合法 + 本地存档（调用方负责存档）
+    return {"status": _check_code_status(code)}
+
+
+def verify_license_online(code):
+    return {"status": _check_code_status(code)}
+
+
+def _license_dirs():
+    """激活码存档目录（可能多个，互相备份）。
+    关键：这些目录都【在 exe 之外、跟着 Windows 用户账号走】，
+    所以“更新软件 / 覆盖 exe / 重装程序”都不会丢激活。
+    Windows 同时写本地(LOCALAPPDATA)和漫游(APPDATA)两份，任一被清也能从另一份恢复。
+    只有两个环境变量都缺失（极少见）才退到用户主目录。
+    """
+    dirs = []
+    if sys.platform.startswith("win"):
+        have_env = False
+        for env in ("LOCALAPPDATA", "APPDATA"):
+            base = os.environ.get(env)
+            if base:
+                dirs.append(os.path.join(base, "pdf2txt"))
+                have_env = True
+        if not have_env:
+            dirs.append(os.path.join(os.path.expanduser("~"), "pdf2txt"))
+    else:
+        dirs.append(os.path.expanduser("~/.pdf2txt"))
+    # 去重、保顺序
+    seen, out = set(), []
+    for d in dirs:
+        if d not in seen:
+            seen.add(d)
+            out.append(d)
+    for d in out:
+        try:
+            os.makedirs(d, exist_ok=True)
+        except Exception:
+            pass
+    return out
+
+
+def _license_paths():
+    return [os.path.join(d, "license.json") for d in _license_dirs()]
+
+
+def load_cached_license():
+    """从所有备份位置读取激活码，任一有效即返回（更新/重装后依然能认出来）。"""
+    for p in _license_paths():
+        try:
+            with open(p, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if data and validate_license_format(data.get("code", "")):
+                return data
+        except Exception:
+            continue
+    return None
+
+
+def save_cached_license(code):
+    """把激活码写到所有备份位置；只要有一份写成功就算成功。"""
+    ok = False
+    norm = normalize_license_code(code)
+    for p in _license_paths():
+        try:
+            with open(p, "w", encoding="utf-8") as f:
+                json.dump({"code": norm}, f)
+            ok = True
+        except Exception:
+            pass
+    return ok
+
+
+def ensure_licensed(app):
+    """检查 / 要求激活。返回 True 表示已授权，False 表示用户拒绝激活（应退出）。"""
+    cached = load_cached_license()
+    if cached and validate_license_format(cached.get("code", "")):
+        try:
+            res = verify_license_online(cached["code"])
+            st = res.get("status")
+            if st == "ok":
+                return True
+            if st == "revoked":
+                messagebox.showwarning(
+                    "激活码已被吊销",
+                    "你这台设备的激活码已被作者吊销，\n请重新输入一个新的激活码。")
+            # invalid / notactivated → 落到下面重新激活
+        except Exception:
+            # 联网失败：离线状态下信任本地缓存，允许继续使用（联网后下次会自动复核）
+            messagebox.showwarning(
+                "未能联网复核",
+                "暂时连不上激活服务器，已使用本地缓存离线运行。\n"
+                "网络恢复后，下次启动会自动联网复核激活状态。")
+            return True
+    # 需要激活（首次 / 被吊销 / 本地无记录）
+    while True:
+        dlg = ActivationDialog(app)
+        app.wait_window(dlg)
+        if dlg.result == "quit":
+            return False
+        if dlg.result == "ok":
+            save_cached_license(dlg.code)
+            return True
+
+
+class ActivationDialog(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("激活 PDF 转 TXT")
+        self.configure(bg=BG_APP)
+        self.resizable(False, False)
+        self.result = None      # "ok" | "quit"
+        self.code = ""
+        self._build()
+        self.grab_set()
+        self.transient(parent)
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
+        self.update_idletasks()
+        w, h = self.winfo_width(), self.winfo_height()
+        self.geometry("%dx%d+%d+%d" % (
+            w, h,
+            max(0, parent.winfo_rootx() + (parent.winfo_width() - w) // 2),
+            max(0, parent.winfo_rooty() + (parent.winfo_height() - h) // 2)))
+        self.entry.focus_set()
+
+    def _build(self):
+        pad = PAD
+        tk.Label(self, text="激活 PDF 转 TXT", bg=BG_APP, fg=FG_TEXT,
+                 font=font(15, "bold")).pack(anchor="w", padx=pad, pady=(pad, 4))
+        tk.Label(self, text="请输入激活码以解锁转换功能。\n"
+                            "每个激活码仅限一台设备使用（用过即作废，不可转移）。\n"
+                            "（没激活也能先打开程序、检查更新；点「稍后再说」即可。）",
+                 bg=BG_APP, fg=FG_DIM, font=font(10), anchor="w",
+                 wraplength=400, justify="left").pack(anchor="w", padx=pad, pady=(0, 10))
+
+        panel = RoundedPanel(self, bg=BG_ELEV, radius=RADIUS_MD)
+        panel.pack(fill="x", padx=pad, pady=(0, 8))
+        pf = panel.content()
+        tk.Label(pf, text="激活码", bg=BG_ELEV, fg=FG_DIM, font=font(10)).pack(
+            anchor="w", padx=12, pady=(12, 4))
+        self.entry = tk.Entry(pf, bg=BG_SUNKEN, fg=FG_TEXT, font=mono(13),
+                              relief="flat", highlightthickness=1,
+                              highlightcolor=ACCENT, insertbackground=FG_TEXT,
+                              width=28)
+        self.entry.pack(fill="x", padx=12, pady=(0, 12))
+        self.entry.bind("<Return>", lambda e: self._on_activate())
+
+        self.status = tk.Label(self, text="", bg=BG_APP, fg=FG_DIM, font=font(9),
+                               anchor="w", wraplength=400, justify="left")
+        self.status.pack(anchor="w", padx=pad, pady=(0, 6))
+
+        btn_row = tk.Frame(self, bg=BG_APP)
+        btn_row.pack(fill="x", padx=pad, pady=(0, pad))
+        RoundButton(btn_row, "稍后再说", command=self._on_later,
+                    kind="ghost", height=34).pack(side="right")
+        RoundButton(btn_row, "激活", command=self._on_activate,
+                    kind="accent", height=34).pack(side="right", padx=(8, 0))
+
+    def _set_status(self, msg, kind="info"):
+        color = {"info": FG_DIM, "ok": FG_OK, "bad": FG_BAD,
+                 "warn": FG_WARN}.get(kind, FG_DIM)
+        self.status.configure(text=msg, fg=color)
+
+    def _on_activate(self):
+        raw = self.entry.get().strip()
+        code = normalize_license_code(raw)
+        if not validate_license_format(code):
+            self._set_status("激活码格式不对（形如 ABCD-1234-EFGH-5678，共 16 位）。", "bad")
+            return
+        self._set_status("正在联网校验…", "info")
+        self.update_idletasks()
+        last_err = None
+        for attempt in range(3):
+            try:
+                res = activate_license_online(code)
+                break
+            except Exception as e:
+                last_err = e
+                if attempt < 2:
+                    self._set_status("连接失败，正在重试（%d/3）…" % (attempt + 2), "info")
+                    self.update_idletasks()
+                    time.sleep(1.2)
+        else:
+            # activate_license_online 失败时已把错误翻成人话
+            self._set_status(str(last_err), "bad")
+            return
+        st = res.get("status")
+        if st == "ok":
+            self.code = code
+            self.result = "ok"
+            self.destroy()
+        elif st == "invalid":
+            self._set_status("该激活码无效（未发售或已失效）。", "bad")
+        elif st == "used":
+            self._set_status("该激活码已被使用（每个码限一台设备，用过即作废）。", "bad")
+        elif st == "revoked":
+            self._set_status("该激活码已被吊销。", "bad")
+        else:
+            self._set_status("未知返回：" + str(st), "bad")
+
+    def _on_later(self):
+        self.result = "later"
+        self.destroy()
+
+    def _on_close(self):
+        self.result = "later"
+        self.destroy()
+
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -1164,6 +1765,62 @@ class App(tk.Tk):
         sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
         w, h = self.winfo_width(), self.winfo_height()
         self.geometry("%dx%d+%d+%d" % (w, h, max(0, (sw - w) // 2), max(0, (sh - h) // 3)))
+
+        # ---- 商用激活：不再卡启动 ----
+        # 没激活也能打开程序、用「检查更新」/「反馈」。
+        # 有缓存就先信任（离线也能用），后台联网复核；
+        # 没缓存则未激活，点「开始转换」时才会要求激活（可「稍后再说」继续用壳子）。
+        _cached = load_cached_license()
+        self.licensed = bool(
+            _cached and validate_license_format(_cached.get("code", ""))
+        )
+        if self.licensed:
+            threading.Thread(target=self._bg_verify_license,
+                             args=(_cached["code"],), daemon=True).start()
+        self._refresh_license_ui()
+
+    def _bg_verify_license(self, code):
+        """后台联网复核缓存的激活码：ok 保持授权；被吊销/失效则收回授权。"""
+        try:
+            res = verify_license_online(code)
+            st = res.get("status")
+        except Exception:
+            return  # 离线：继续信任本地缓存，不弹窗、不卡
+        if st == "ok":
+            self.after(0, lambda: self._set_licensed(True, None))
+        elif st in ("revoked", "invalid", "notactivated"):
+            self.after(0, lambda: self._set_licensed(False, st))
+
+    def _set_licensed(self, ok, st):
+        if self.licensed == ok and ok:
+            return
+        self.licensed = ok
+        self._refresh_license_ui()
+        if st == "revoked":
+            messagebox.showwarning(
+                "激活码已被吊销",
+                "你这台设备的激活码已被作者吊销，转换功能已锁定。\n"
+                "点「开始转换」可重新输入激活码；检查更新/反馈不受影响。")
+
+    def _refresh_license_ui(self):
+        """未激活时把按钮文案改成提示；已激活则正常。"""
+        try:
+            if getattr(self, "btn_run", None) is None:
+                return
+            if self.licensed:
+                self.btn_run.set_text("开始转换")
+            else:
+                self.btn_run.set_text("开始转换（需先激活）")
+        except Exception:
+            pass
+
+    def _require_activation(self):
+        """弹激活框；成功则存档并解锁，失败/稍后则继续用壳子（更新可用）。"""
+        dlg = ActivationDialog(self)
+        self.wait_window(dlg)
+        if dlg.result == "ok":
+            save_cached_license(dlg.code)
+            self._set_licensed(True, None)
 
     def _build_ui(self):
         head = tk.Frame(self, bg=BG_APP)
@@ -1442,6 +2099,10 @@ class App(tk.Tk):
         self.after(80, self._poll_queue)
 
     def _start(self):
+        if not self.licensed:
+            self._require_activation()
+            if not self.licensed:
+                return
         if self._running:
             return
         if not self.pdf_list:
@@ -1530,7 +2191,7 @@ class App(tk.Tk):
 
     def _check_thread(self, dlg):
         try:
-            info = _race_fetch_json(_manifest_candidates())
+            info = _fetch_manifest_race()
             remote = info.get("version", "")
             if not _version_newer(remote, APP_VERSION):
                 dlg.after_idle(lambda: _safe(lambda: dlg.show_uptodate()))
@@ -1583,10 +2244,11 @@ class App(tk.Tk):
                     # 同一个源最多试 3 次（应对网络抖掉），每次都从临时文件重新下
                     for attempt in range(3):
                         try:
-                            got = _download_file(
+                            got = _download_parallel(
                                 u, dest,
-                                progress=lambda g, t: dlg.after_idle(
-                                    lambda: _safe(lambda: dlg.set_downloading(g, t, label))))
+                                expect_size=expect_size,
+                                progress=lambda g, t, sp, lb=label: dlg.after_idle(
+                                    lambda: _safe(lambda: dlg.set_downloading(g, t, lb, sp))))
                             if expected and got.lower() != expected:
                                 try:
                                     os.remove(dest)
@@ -1755,6 +2417,7 @@ class App(tk.Tk):
                 try:
                     got = _download_file(
                         u, dest,
+                        expect_size=expect_size,
                         progress=lambda g, t: dlg.after_idle(
                             lambda: _safe(lambda: dlg.set_downloading(g, t, label))))
                     break
@@ -1816,7 +2479,7 @@ class App(tk.Tk):
 
     def _autocheck_thread(self):
         try:
-            info = fetch_manifest(UPDATE_MANIFEST_URL)
+            info = _fetch_manifest_race()
             if _version_newer(info.get("version", ""), APP_VERSION):
                 self.after_idle(self._on_check_update)
         except Exception:
@@ -1832,17 +2495,47 @@ def _safe(fn):
 
 
 def _run_headless(argv):
-    """无界面模式：pdf2txt.exe --headless --in a.pdf [--out a.txt] [--mode image|text]"""
-    args = {"in": None, "out": None, "mode": "image"}
+    """无界面模式：pdf2txt.exe --headless --in a.pdf [--out a.txt] [--mode image|text] [--code 激活码]"""
+    args = {"in": None, "out": None, "mode": "image", "code": None}
     it = iter(argv[1:])
     for a in it:
-        if a in ("--in", "--out", "--mode"):
+        if a in ("--in", "--out", "--mode", "--code"):
             try:
                 args[a.lstrip("-")] = next(it)
             except StopIteration:
                 pass
         elif a == "--headless":
             continue
+    # 商用激活（无界面模式同样需要授权）
+    cached = load_cached_license()
+    if cached and validate_license_format(cached.get("code", "")):
+        try:
+            r = verify_license_online(cached["code"])
+            if r.get("status") == "revoked":
+                print("该激活码已被吊销，无法使用。")
+                return 1
+            if r.get("status") not in ("ok",):
+                print("本地激活状态异常，请重新激活（--code <码>）。")
+                return 1
+        except Exception:
+            pass  # 联网失败：离线信任本地缓存
+    else:
+        code = args.get("code")
+        if code:
+            try:
+                r = activate_license_online(code)
+            except Exception as e:
+                print("联网激活失败：", e)
+                return 1
+            if r.get("status") == "ok":
+                save_cached_license(code)
+                print("激活成功。")
+            else:
+                print("激活失败：", r.get("status"))
+                return 1
+        else:
+            print("未激活。请先激活：--code <你的激活码>")
+            return 1
     if not args["in"]:
         print("用法: pdf2txt --headless --in 文件.pdf [--out 输出.txt] [--mode image|text]")
         return 2
