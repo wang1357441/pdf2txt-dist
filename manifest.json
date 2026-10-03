@@ -1,23 +1,23 @@
 {
-  "version": "1.0.11",
-  "notes": "激活后端从 Cloudflare workers.dev 迁移到 GitHub（licenses.json），国内可直连；激活与启动解耦（未激活也能开程序、检查更新）；联网调用加重试与人话报错。",
-  "size": 108767436,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.11",
+  "version": "1.0.12",
+  "notes": "激活改为强制：去掉「稍后再说」跳过口子，转换 PDF 必须先激活；主界面新增显眼的「激活 / 已激活」按钮，激活码更好找好输。不挡启动，仍可用检查更新与反馈。",
+  "size": 108766555,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.12",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.11/PDFtoTXT.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.11/PDFtoTXT.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.11/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.11/PDFtoTXT.exe",
-    "sha256": "883ea74ae589c4639c6d3052cb952e8e330d01519d94a72bf564c77fd96ea4cf",
-    "size": 108767436
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT.exe",
+    "sha256": "4569a3a46da82765bc3b0855f00bc228b379ca25a8f6bfdbcdb00e4383e2dd30",
+    "size": 108766555
   },
   "linux": {
     "source": {
-      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.11/pdf2txt_source.tar.gz",
-      "sha256": "d5b80b9b957f3aa3fa313c9bf427b99fcb845ec88d10997a7069c6e5afe3184c",
-      "size": 49387
+      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/pdf2txt_source.tar.gz",
+      "sha256": "d8f565baa3a1ea7e2c8727ce6fd4414e31af82d685c986610751b347b1a22590",
+      "size": 49506
     },
     "binary": {
       "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.11/PDFtoTXT_linux_aarch64",
