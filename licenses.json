@@ -1,7 +1,9 @@
 {
   "version": 1,
   "valid": [
-    "c42350dd3d735cdc3eb0bf61e1c7ac6688999a828ff397e5c8626a8d8bfeaf6f"
+    "6882d292598a7f3939e6f613cfb97943b6f446f0c67c19d32191dead7387079f",
+    "c42350dd3d735cdc3eb0bf61e1c7ac6688999a828ff397e5c8626a8d8bfeaf6f",
+    "c856123c99068dfe4f6f947c83cbca1f119bc02b1a63bfd35a314af307ca0158"
   ],
   "revoked": []
 }
