@@ -49,6 +49,12 @@ def main():
     sha = sha.hexdigest()
     print("binary sha256=%s size=%d" % (sha, sz))
 
+    # 体积守卫：正常成品约 100MB+；若远小于此，说明构建只出了半成品，
+    # 不能再上传（否则 Release 上挂的是坏文件）。直接报错退出，让 CI 显式失败。
+    if sz < 100 * 1024 * 1024:
+        print("!! 二进制只有 %d 字节（<100MB），疑似半成品，拒绝上传。" % sz)
+        sys.exit(1)
+
     rel = api("GET", "/repos/%s/releases/tags/%s" % (REPO, TAG))
     rid = rel["id"]
     for a in rel.get("assets", []):
@@ -65,22 +71,11 @@ def main():
         j = json.loads(r.read().decode())
     print("  已上传附件：%s (id=%s)" % (j.get("name"), j.get("id")))
 
-    m = api("GET", "/repos/%s/contents/manifest.json?ref=main" % REPO)
-    mtxt = base64.b64decode(m["content"]).decode()
-    man = json.loads(mtxt)
-    man.setdefault("linux", {})
-    man["linux"]["binary"] = {
-        "url": "https://github.com/%s/releases/download/%s/PDFtoTXT_linux_aarch64" % (REPO, TAG),
-        "sha256": sha,
-        "size": sz,
-    }
-    newtxt = json.dumps(man, ensure_ascii=False, indent=2) + "\n"
-    api("PUT", "/repos/%s/contents/manifest.json" % REPO, {
-        "message": "ci: add UOS aarch64 binary to manifest (%s)" % TAG,
-        "content": base64.b64encode(newtxt.encode()).decode(),
-        "sha": m["sha"],
-    })
-    print("  manifest 已补上 linux.binary（UOS 自动更新可用）。")
+    # 注意：不再由 CI 改写 manifest.json 的 linux.binary。
+    # 原因：本机/CI 一旦构建出“半成品”二进制，就会把错误的 sha256/体积写进清单，
+    # 导致 UOS 自动更新校验失败。清单由 publish_update.py（作者本地，用真实上传后的
+    # 附件核对）统一负责，CI 只负责把二进制传到 Release 当附件即可。
+    print("  （CI 不改动 manifest.json；linux.binary 由发布脚本统一维护）")
 
 
 if __name__ == "__main__":
