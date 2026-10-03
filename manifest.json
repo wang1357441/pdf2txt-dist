@@ -1,23 +1,23 @@
 {
-  "version": "1.0.12",
-  "notes": "激活改为强制：去掉「稍后再说」跳过口子，转换 PDF 必须先激活；主界面新增显眼的「激活 / 已激活」按钮，激活码更好找好输。不挡启动，仍可用检查更新与反馈。",
-  "size": 108766555,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.12",
+  "version": "1.0.13",
+  "notes": "修复自动更新的收尾一步：替换完成后重启新版时，先清掉打包器专用的临时环境变量再启动助手，避免新程序被安全校验误拦（不再弹 Security validation failure 报错框）。下载新程序仍强制 sha256 校验，校验不过不替换。",
+  "size": 108768130,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.13",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.13/PDFtoTXT.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.13/PDFtoTXT.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT.exe",
-    "sha256": "4569a3a46da82765bc3b0855f00bc228b379ca25a8f6bfdbcdb00e4383e2dd30",
-    "size": 108766555
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.13/PDFtoTXT.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.13/PDFtoTXT.exe",
+    "sha256": "496226d410a191c87658b0a7859940d36f26859f8e5df137bcf11bfb5009e32b",
+    "size": 108768130
   },
   "linux": {
     "source": {
-      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/pdf2txt_source.tar.gz",
-      "sha256": "d8f565baa3a1ea7e2c8727ce6fd4414e31af82d685c986610751b347b1a22590",
-      "size": 49506
+      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.13/pdf2txt_source.tar.gz",
+      "sha256": "dc5f0de9a6ad989f68f3eb936a460015f44fe584d7edbd896fae3d922ee2a5cc",
+      "size": 49951
     },
     "binary": {
       "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT_linux_aarch64",
