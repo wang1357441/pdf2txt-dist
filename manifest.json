@@ -1,29 +1,17 @@
 {
-  "version": "1.0.20",
-  "notes": "v1.0.20: relax license format check so already-issued codes with ambiguous chars (L/0/1/I) can activate; keygen now auto-verifies each uploaded code is live",
-  "size": 108776078,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.20",
+  "version": "1.0.22",
+  "notes": "v1.0.22: 修复首次使用许可协议（EULA）弹窗按钮在部分系统（高 DPI / 屏幕缩放）下点不动的问题；协议弹窗改用标准按钮，勾选「我已阅读并同意」后点「同意并继续使用」即可进入，点「不同意并退出」或右上角 X 则直接退出。同意过一次后不再弹出。",
+  "size": 108780684,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.22",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.20/PDFtoTXT.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.20/PDFtoTXT.exe",
-      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.20/PDFtoTXT.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.22/PDFtoTXT-x64.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.22/PDFtoTXT-x64.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.22/PDFtoTXT-x64.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.20/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.20/PDFtoTXT.exe",
-    "sha256": "3a10c97f8f4901c01bdae1d25ca53567525aa1223167e01813eac5ace66fcac4",
-    "size": 108776078
-  },
-  "linux": {
-    "source": {
-      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.20/pdf2txt_source.tar.gz",
-      "sha256": "09df98949dc116fe9fca5f3d8423802433bd5e077db634c6fc367135707793d8",
-      "size": 53556
-    },
-    "binary": {
-      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.12/PDFtoTXT_linux_aarch64",
-      "sha256": "6590a9e4b939c1b3b62164051dd7ef01ac745e0fc71cf4ff0fa42cb047fdab54",
-      "size": 110970040
-    }
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.22/PDFtoTXT-x64.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.22/PDFtoTXT-x64.exe",
+    "sha256": "87ad280fa8c121b07af6685cdbed0fa8360c064d9247db1fba5ed1f21aedac5b",
+    "size": 108780684
   }
 }
