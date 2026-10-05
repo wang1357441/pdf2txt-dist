@@ -1,17 +1,17 @@
 {
-  "version": "1.0.23",
-  "notes": "v1.0.23: 再次修复首次使用许可协议（EULA）弹窗——之前在较小屏幕 / 高缩放比例下窗口过高，底部「同意 / 不同意」按钮会被挤出屏幕看不到。现在窗口尺寸自适应屏幕，按钮始终钉在底部可见；并改回用标准按钮确保点击可靠。勾选「我已阅读并同意」后点「同意并继续使用」进入，点「不同意并退出」或右上角 ✕ 退出，同意过一次后不再弹。",
-  "size": 108782440,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.23",
+  "version": "1.0.24",
+  "notes": "v1.0.24: 修复自动更新后「更新助手」临时文件夹（PDFtoTXT更新临时程序）残留在桌面上不删除的问题——更新助手脚本的清理命令由 rmdir /q 改为 rmdir /s /q，递归删除整个临时文件夹（含残留的 .bat），更新完成后桌面不再留垃圾。同时保留 EULA 弹窗在较小屏幕/高缩放下按钮始终可见的修复。",
+  "size": 108783062,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.24",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.23/PDFtoTXT-x64.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.23/PDFtoTXT-x64.exe",
-      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.23/PDFtoTXT-x64.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.23/PDFtoTXT-x64.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.23/PDFtoTXT-x64.exe",
-    "sha256": "e00da44de7cdbcfd31d04894385c315643d959309482b10b9f6c4cf02c531bbc",
-    "size": 108782440
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe",
+    "sha256": "f695db4db1c20bf130ddf98e70b92c45650fa45fb4b97735348035ffa016e5d9",
+    "size": 108783062
   }
 }
