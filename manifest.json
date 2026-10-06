@@ -1,17 +1,17 @@
 {
-  "version": "1.0.24",
-  "notes": "v1.0.24: 修复自动更新后「更新助手」临时文件夹（PDFtoTXT更新临时程序）残留在桌面上不删除的问题——更新助手脚本的清理命令由 rmdir /q 改为 rmdir /s /q，递归删除整个临时文件夹（含残留的 .bat），更新完成后桌面不再留垃圾。同时保留 EULA 弹窗在较小屏幕/高缩放下按钮始终可见的修复。",
-  "size": 108783062,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.24",
+  "version": "1.0.25",
+  "notes": "v1.0.25: 修复激活码「只能激活一次」——激活过的码在本机会被永久记录，解除激活后也不能再用同一个码在本机重新激活（此前解除后还能复用，已修复）。解除本机激活工具同步更新说明。",
+  "size": 108783002,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.25",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe",
-      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.25/PDFtoTXT-x64.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.25/PDFtoTXT-x64.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.25/PDFtoTXT-x64.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.24/PDFtoTXT-x64.exe",
-    "sha256": "f695db4db1c20bf130ddf98e70b92c45650fa45fb4b97735348035ffa016e5d9",
-    "size": 108783062
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.25/PDFtoTXT-x64.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.25/PDFtoTXT-x64.exe",
+    "sha256": "04d69ec07ea762099b3e78ccfad1def9eaa0482fdb142e5997b8c3d1041cff19",
+    "size": 108783002
   }
 }
