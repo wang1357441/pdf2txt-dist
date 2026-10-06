@@ -1,17 +1,28 @@
 {
-  "version": "1.0.27",
-  "notes": "v1.0.27: 更新助手「彻底不建文件夹」—— 上一版(1.0.26)修好了删除临时文件夹的问题，但更新时仍会建一个临时文件夹放旧版本备份。这一版彻底去掉：旧版本备份和更新助手脚本都改成直接丢在系统临时目录里的两个单独文件（备份文件设为隐藏），整个更新过程不再 mkdir / rmdir 任何文件夹，更新完只删除这两个文件，干净利落、绝不在桌面或任何地方留下空文件夹。同时运行的多个更新助手仍会排队，互不干扰。",
-  "size": 108783056,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.27",
+  "version": "1.0.28",
+  "notes": "v1.0.28: 修复「更新会变架构」—— 以前无论当前是 32 位还是 64 位程序，点「安装并更新」都会去下载 64 位的包、把自己替换成 64 位（32 位用户更新后程序就打不开了）。现在更新前会先看清自己是不是 32 位：32 位程序只下载 32 位的包（windows_x86 段），64 位程序仍下载 64 位，互不串台。两架构各自从对应发布页取包并按各自 sha256 校验。",
+  "size": 108782761,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.28",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.27/PDFtoTXT-x64.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.27/PDFtoTXT-x64.exe",
-      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.27/PDFtoTXT-x64.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28/PDFtoTXT-x64.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28/PDFtoTXT-x64.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28/PDFtoTXT-x64.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.27/PDFtoTXT-x64.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.27/PDFtoTXT-x64.exe",
-    "sha256": "992c6be06327ea108414603e7f02795fdb84e9af8f9dbd5540fcf9e6c2521d41",
-    "size": 108783056
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28/PDFtoTXT-x64.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28/PDFtoTXT-x64.exe",
+    "sha256": "70cf7caccdcba0acfc672bcfa790ee40dc09694941f441a1182d5293c8b2bfcd",
+    "size": 108782761
+  },
+  "windows_x86": {
+    "urls": [
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28-x86/PDFtoTXT-x86.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28-x86/PDFtoTXT-x86.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28-x86/PDFtoTXT-x86.exe"
+    ],
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28-x86/PDFtoTXT-x86.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.28-x86/PDFtoTXT-x86.exe",
+    "sha256": "38827e5188668d696d4712015e0e3dff29c449853f9da24d1506aa4dda1890ef",
+    "size": 88847071
   }
 }
