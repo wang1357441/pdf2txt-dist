@@ -1,28 +1,28 @@
 {
-  "version": "1.0.31",
-  "notes": "v1.0.31: 激活系统升级——激活码支持“已用过(used)”状态；配合云端小后台上线后，同码不能在第二台设备二次激活，本机已激活程序不受影响；用 gen_keys 重新导入可把用过的码恢复为可用。沿用 1.0.29 老 CPU 兼容内核（numpy 1.19.5 + onnxruntime 1.10.0）。64 位版同步版本号，无功能改动。",
-  "size": 108786894,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.31",
+  "version": "1.0.32",
+  "notes": "v1.0.32: 激活系统正式接入云端小后台（阿里云函数计算 FC）。现在“一个激活码只能用一次、换第二台电脑激活会被拒绝”已强制生效；本机已激活的程序不受影响（不会因此被锁）。若需把一个已用过的码恢复可用，用 gen_keys 重新导入即可。沿用 1.0.29 老 CPU 兼容内核（numpy 1.19.5 + onnxruntime 1.10.0）。64 位版同步版本号，无功能改动。",
+  "size": 108787229,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.32",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31/PDFtoTXT-x64.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31/PDFtoTXT-x64.exe",
-      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31/PDFtoTXT-x64.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32/PDFtoTXT-x64.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32/PDFtoTXT-x64.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32/PDFtoTXT-x64.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31/PDFtoTXT-x64.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31/PDFtoTXT-x64.exe",
-    "sha256": "664e00fae916c399dff30b379983ce001b525bbaa8e150ecc4878a1a3dc01504",
-    "size": 108786894
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32/PDFtoTXT-x64.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32/PDFtoTXT-x64.exe",
+    "sha256": "f8d292fd7ff38bc73894e34e1b9f53ca39b3e8b93562ba8388afd1541826fbc5",
+    "size": 108787229
   },
   "windows_x86": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31-x86/PDFtoTXT-x86.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31-x86/PDFtoTXT-x86.exe",
-      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31-x86/PDFtoTXT-x86.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32-x86/PDFtoTXT-x86.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32-x86/PDFtoTXT-x86.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32-x86/PDFtoTXT-x86.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31-x86/PDFtoTXT-x86.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.31-x86/PDFtoTXT-x86.exe",
-    "sha256": "1577e5c325ee37d7740d76148e7f7db5ca7bc1a7adfb1d5dde0e742be991c69d",
-    "size": 88459906
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32-x86/PDFtoTXT-x86.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.32-x86/PDFtoTXT-x86.exe",
+    "sha256": "28d5307ed1e5bb9f64733935d1062e7df50a37204439f24789745e782b37111f",
+    "size": 88459946
   }
 }
