@@ -1,26 +1,28 @@
 {
-  "version": "1.0.35",
-  "notes": "PDF 转 TXT（含图片 OCR）。支持检查更新，下载优先走镜像站、官方源兜底。",
-  "size": 113029600,
-  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.35",
+  "version": "1.0.36",
+  "notes": "v1.0.36：修复「更新后新版本启动失败却没有自动回滚」的严重问题。更新助手现在会：① 复制完成后再次核对 sha256（挡住下载校验漏掉的损坏）；② 启动新版本后等它写“启动成功标记”（证明已越过 PyInstaller 自解压、真正进了程序），约 67 秒超时没出现标记（例如 zlib -3 解压失败根本起不来）就自动回滚到上一版本，并用旧版本上报 INSTALL_BOOT_FAILED 错误。只有“复制成功 + sha 对 + 新版本确实启动成功”三者都满足，才删除旧版本备份。64 位 / 32 位同步此修复。沿用老 CPU 兼容内核。",
+  "size": 112508670,
+  "url": "https://github.com/wang1357441/pdf2txt-dist/releases/tag/v1.0.36",
   "windows": {
     "urls": [
-      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.35/PDFtoTXT.exe",
-      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.35/PDFtoTXT.exe",
-      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.35/PDFtoTXT.exe"
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36/PDFtoTXT-x64.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36/PDFtoTXT-x64.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36/PDFtoTXT-x64.exe"
     ],
-    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.35/PDFtoTXT.exe",
-    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.35/PDFtoTXT.exe",
-    "sha256": "39971dafa33f7806b4e7b2639dbcbf5277aca4e7c43ed0bbfe8a1f8ba92d407c",
-    "size": 113029600
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36/PDFtoTXT-x64.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36/PDFtoTXT-x64.exe",
+    "sha256": "7c9643306a08e736580b16946eb15e36ffb59f357ea688054441e68431f97972",
+    "size": 112508670
   },
-  "linux": {
-    "source": {
-      "url": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.35/pdf2txt_source.tar.gz",
-      "sha256": "8c02e1d76134b49dbce87567f10526e2d17a887ef5c06ab405c43911de83deb4",
-      "size": 61769
-    }
-  },
-  "signature": "IwUEW7Q8kLeQxTEDmKJery7AJXlW+8r+BMhSqYEEkh1I67gAkkC//JqdVMpqJO9xZEja8bs99WF8x+bYv3mfDQ==",
-  "key_id": "default"
+  "windows_x86": {
+    "urls": [
+      "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36-x86/PDFtoTXT-x86.exe",
+      "https://gh-proxy.com/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36-x86/PDFtoTXT-x86.exe",
+      "https://ghfast.top/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36-x86/PDFtoTXT-x86.exe"
+    ],
+    "url": "https://ghproxy.net/https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36-x86/PDFtoTXT-x86.exe",
+    "fallback": "https://github.com/wang1357441/pdf2txt-dist/releases/download/v1.0.36-x86/PDFtoTXT-x86.exe",
+    "sha256": "79dbb50b6f597a457e31743698d3da5babaa158a429af03a0669482e065376ae",
+    "size": 92271387
+  }
 }
